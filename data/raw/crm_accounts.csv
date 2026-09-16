@@ -1,0 +1,6 @@
+record_id,client_id,legal_name,lei,segment,domicile,tier,aum_usd,aum_as_of,updated_at
+CRM-1001,C001,Northwind Capital Partners LLC,5493001NWCP00000001,Hedge Fund,US,1,4200000000,2026-03-31,2026-04-02
+CRM-1002,C002,Evergreen Teachers Retirement System,5493002ETRS00000002,Public Pension,US,1,61500000000,2026-06-30,2026-07-01
+CRM-1003,C003,Solstice Family Office,,Family Office,CH,2,850000000,2025-09-30,2025-10-12
+CRM-1004,C004,Meridian Health Foundation,5493004MHF000000004,Endowment & Foundation,US,2,2300000000,2026-06-30,2026-06-15
+MIG-77,,Northwind Capital Ptnrs,5493001NWCP00000001,Hedge Fund,US,,,,2024-01-09

@@ -1,0 +1,4 @@
+action_id,client_id,title,owner,due_date,status,updated_at
+A-1,C001,Send ESG screening report,ava.chen,2026-08-15,Open,2026-07-16
+A-2,C001,Send FX hedging proposal,ava.chen,2026-09-30,Open,2026-07-16
+A-3,C002,Deliver fee benchmark study,ava.chen,2026-07-31,Open,2026-06-21

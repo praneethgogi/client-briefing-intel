@@ -1,0 +1,13 @@
+# Pinned to the versions this prototype was tested against (pytest + offline and
+# live eval gates all green). Open ranges let a fresh install pick up new majors,
+# which is not what you want for a build someone else has to reproduce.
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+pydantic==2.13.5
+langgraph==1.2.11
+openai==3.14.1
+rapidfuzz==3.14.6
+rank-bm25==0.2.2
+mcp==2.2.0
+httpx==0.28.1
+pytest==9.1.1

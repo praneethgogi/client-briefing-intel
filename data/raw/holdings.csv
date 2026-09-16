@@ -1,0 +1,7 @@
+client_id,product,metric,value_usd,prior_value_usd,as_of
+C001,Prime Brokerage,Average financing balance,1900000000,1500000000,2026-08-31
+C001,FX Forwards (EUR/USD),Notional outstanding,350000000,120000000,2026-08-31
+C001,Custody,Assets under custody,2600000000,2500000000,2026-08-31
+C002,Custody,Assets under custody,48000000000,49500000000,2026-08-31
+C002,Securities Lending,On-loan balance,3100000000,3000000000,2026-08-31
+C004,Advisory,Advised assets,900000000,880000000,2026-08-31

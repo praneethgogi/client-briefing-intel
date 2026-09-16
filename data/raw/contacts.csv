@@ -1,0 +1,10 @@
+source,contact_id,client_ref,name,title,email,updated_at
+CRM,P-1,C001,Dana Whitfield,Chief Investment Officer,dana.whitfield@northwind.example,2025-11-03
+CRM,P-2,C001,Marcus Lee,Chief Operating Officer,marcus.lee@northwind.example,2026-01-20
+MarketingHub,MH-88,NWCP,Priya Raman,Head of Risk,priya.raman@northwind.example,2026-02-10
+MarketingHub,MH-89,Northwind Cap,Dana Whitfield,CIO,dana.whitfield@northwind.example,2025-06-01
+CRM,P-3,C002,Ramon Alvarez,Chief Investment Officer,ralvarez@evergreentrs.example,2026-05-02
+MarketingHub,MH-90,ETRS,Grace Kim,Deputy CIO,gkim@evergreentrs.example,2026-03-14
+CRM,P-4,C003,Helena Brandt,Principal,hb@solstice-fo.example,2025-10-12
+CRM,P-5,C004,Tom Okafor,Chief Financial Officer,tokafor@meridianhf.example,2026-06-15
+MarketingHub,MH-91,Northwood Capital Group,Sam Patel,Portfolio Manager,spatel@northwood.example,2026-08-01

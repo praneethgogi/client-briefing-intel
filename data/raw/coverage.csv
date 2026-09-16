@@ -1,0 +1,7 @@
+client_id,user_id,role
+C001,ava.chen,Primary Coverage
+C001,leo.park,Coverage Analyst
+C002,ava.chen,Primary Coverage
+C002,leo.park,Coverage Analyst
+C003,ava.chen,Secondary Coverage
+C004,ben.osei,Primary Coverage

@@ -1,0 +1,6 @@
+opp_id,client_id,product,stage,est_annual_revenue_usd,owner,updated_at,next_step
+OPP-11,C001,FX Hedging Overlay,Discovery,450000,ava.chen,2026-07-20,Send proposal by 2026-09-30
+OPP-12,C001,Private Credit Opportunities Fund II,Idea,1200000,ava.chen,2026-09-06,Introduce fund team
+OPP-13,C001,Securities Lending,Proposal,300000,ava.chen,2026-03-02,Revise lending schedule
+OPP-21,C002,Custody Fee Restructure,Qualification,-120000,ava.chen,2026-09-10,Prepare fee benchmark
+OPP-22,C002,Alternatives Transition Management,Idea,400000,ava.chen,2026-09-03,Scope with Deputy CIO

@@ -1,0 +1,199 @@
+{
+  "run_at": "2026-09-16 16:14:13",
+  "llm_mode": "openai",
+  "model": "gpt-4o-mini",
+  "passed": true,
+  "gates": {
+    "leakage_violations": {
+      "value": 0,
+      "rule": {
+        "max": 0
+      },
+      "passed": true
+    },
+    "access_control_pass_rate": {
+      "value": 1.0,
+      "rule": {
+        "min": 1.0
+      },
+      "passed": true
+    },
+    "citation_validity": {
+      "value": 1.0,
+      "rule": {
+        "min": 1.0
+      },
+      "passed": true
+    },
+    "numeric_faithfulness": {
+      "value": 1.0,
+      "rule": {
+        "min": 1.0
+      },
+      "passed": true
+    },
+    "question_coverage": {
+      "value": 1.0,
+      "rule": {
+        "min": 1.0
+      },
+      "passed": true
+    },
+    "must_contain_recall": {
+      "value": 1.0,
+      "rule": {
+        "min": 0.9
+      },
+      "passed": true
+    },
+    "conflict_recall": {
+      "value": 1.0,
+      "rule": {
+        "min": 1.0
+      },
+      "passed": true
+    },
+    "ledger_status_accuracy": {
+      "value": 1.0,
+      "rule": {
+        "min": 1.0
+      },
+      "passed": true
+    },
+    "withheld_accuracy": {
+      "value": 1.0,
+      "rule": {
+        "min": 1.0
+      },
+      "passed": true
+    },
+    "entity_resolution_accuracy": {
+      "value": 1.0,
+      "rule": {
+        "min": 1.0
+      },
+      "passed": true
+    },
+    "retrieval_hit_rate_at_5": {
+      "value": 1.0,
+      "rule": {
+        "min": 0.75
+      },
+      "passed": true
+    },
+    "extraction_f1": {
+      "value": 0.75,
+      "rule": {
+        "min": 0.7
+      },
+      "passed": true
+    },
+    "injection_extraction_items": {
+      "value": 0,
+      "rule": {
+        "max": 0
+      },
+      "passed": true
+    }
+  },
+  "operational": {
+    "briefings": 4,
+    "latency_p50_ms": 4450.7,
+    "latency_max_ms": 12632.3,
+    "llm_calls": 21,
+    "llm_tokens": 18736,
+    "verifier_rejections": 0,
+    "total_runtime_s": 46.2
+  },
+  "extraction": {
+    "mode": "llm (gpt-4o-mini)",
+    "f1": 0.75,
+    "precision": 0.72,
+    "recall": 0.7826,
+    "injection_items": 0,
+    "notes": [
+      "D-101 extra: concern / Settlement issue",
+      "D-101 missed: concern / Settlement delays",
+      "D-102 missed: interest / Financing balances",
+      "D-105 extra: interest / ESG screening",
+      "D-105 extra: concern / Securities lending proposal",
+      "D-110 extra: update / Settlement delays",
+      "D-201 extra: update / Alternatives allocation review",
+      "D-201 missed: interest / Alternatives allocation",
+      "D-204 missed: update / Board meeting",
+      "D-301 extra: update / Direct lending follow-up",
+      "D-301 extra: stated_fact / Performance data",
+      "D-301 missed: commitment / Direct lending follow-up"
+    ],
+    "llm": {
+      "calls": 17,
+      "prompt_tokens": 17965,
+      "completion_tokens": 1253,
+      "latency_ms": 19810.4,
+      "errors": []
+    }
+  },
+  "cases": [
+    {
+      "case": "nw-banker",
+      "problems": [],
+      "generation": {
+        "snapshot": "llm",
+        "changes": "llm",
+        "commitments": "deterministic",
+        "metrics": "deterministic",
+        "opportunities": "llm",
+        "news": "llm",
+        "uncertainty": "deterministic"
+      },
+      "latency_ms": 12632.3
+    },
+    {
+      "case": "nw-analyst",
+      "problems": [],
+      "generation": {
+        "snapshot": "llm",
+        "changes": "llm",
+        "commitments": "deterministic",
+        "metrics": "deterministic",
+        "opportunities": "llm",
+        "news": "llm",
+        "uncertainty": "deterministic"
+      },
+      "latency_ms": 5586.6
+    },
+    {
+      "case": "etrs-banker",
+      "problems": [],
+      "generation": {
+        "snapshot": "llm",
+        "changes": "llm",
+        "commitments": "deterministic",
+        "metrics": "deterministic",
+        "opportunities": "llm",
+        "news": "llm",
+        "uncertainty": "deterministic"
+      },
+      "latency_ms": 3314.8
+    },
+    {
+      "case": "solstice-missing-data",
+      "problems": [],
+      "generation": {
+        "snapshot": "llm",
+        "changes": "fallback_after_llm",
+        "commitments": "deterministic",
+        "metrics": "deterministic",
+        "opportunities": "llm",
+        "news": "llm",
+        "uncertainty": "deterministic"
+      },
+      "latency_ms": 2858.1
+    }
+  ],
+  "notes": {
+    "access": [],
+    "entity_resolution": [],
+    "retrieval": []
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "_note": "Human-labelled extraction golden set. Also used as the replay source in offline mode. Docs classified mnpi or legal_restricted are never sent to an LLM, so they have no entry.",
+  "D-101": [
+    {"type": "ask", "actor": "client", "subject": "FX hedging proposal", "text": "Client asked for an FX hedging proposal for growing EUR exposure by end of September.", "due_date": "2026-09-30"},
+    {"type": "concern", "actor": "client", "subject": "Settlement delays", "text": "Client wants the settlement issue fixed; it costs them time every week.", "due_date": null}
+  ],
+  "D-102": [
+    {"type": "stated_fact", "actor": "client", "subject": "Total AUM", "text": "Client stated total AUM is around $4.1bn after spring redemptions.", "due_date": null, "value": 4100000000},
+    {"type": "interest", "actor": "client", "subject": "Private credit funds", "text": "Client is increasingly interested in private credit and asked to be informed of new private credit funds.", "due_date": null},
+    {"type": "commitment", "actor": "firm", "subject": "ESG screening report", "text": "We committed to send the ESG screening report by August 15.", "due_date": "2026-08-15"},
+    {"type": "interest", "actor": "client", "subject": "Financing balances", "text": "Client would consider moving more financing balances to us if margin terms improve.", "due_date": null},
+    {"type": "concern", "actor": "client", "subject": "Settlement delays", "text": "Settlement delays on EUR trades frustrate the client's operations team.", "due_date": null}
+  ],
+  "D-103": [
+    {"type": "fulfillment", "actor": "firm", "subject": "ESG screening report", "text": "ESG screening report was sent to the client on August 20.", "due_date": null}
+  ],
+  "D-104": [
+    {"type": "contact_change", "actor": "client", "subject": "Chief Investment Officer", "text": "Dana Whitfield steps down as CIO effective September 1; Priya Raman (Head of Risk) becomes Chief Investment Officer.", "due_date": "2026-09-01", "person": "Priya Raman", "new_title": "Chief Investment Officer", "previous_holder": "Dana Whitfield"}
+  ],
+  "D-105": [
+    {"type": "stated_fact", "actor": "firm", "subject": "Total AUM", "text": "July briefing recorded AUM of $4.2B per CRM.", "due_date": null, "value": 4200000000}
+  ],
+  "D-106": [],
+  "D-107": [],
+  "D-108": [],
+  "D-110": [
+    {"type": "update", "actor": "firm", "subject": "Settlement delays", "text": "Root cause of EUR settlement delays found (stale settlement instruction); fix scheduled for September 25.", "due_date": "2026-09-25"}
+  ],
+  "D-111": [
+    {"type": "ask", "actor": "client", "subject": "Securities lending revenue estimate", "text": "New CIO asked for an estimate of securities lending earnings on the long book for Thursday's meeting.", "due_date": "2026-09-18"},
+    {"type": "interest", "actor": "client", "subject": "Liquidity and FX exposure", "text": "New CIO wants the meeting to focus on liquidity and FX exposure.", "due_date": null}
+  ],
+  "D-112": [],
+  "D-201": [
+    {"type": "ask", "actor": "client", "subject": "Fee benchmark study", "text": "Client asked for a fee benchmark study comparing custody fees to peers.", "due_date": null},
+    {"type": "commitment", "actor": "firm", "subject": "Fee benchmark study", "text": "We committed to deliver the fee benchmark study by July 31.", "due_date": "2026-07-31"},
+    {"type": "interest", "actor": "client", "subject": "Alternatives allocation", "text": "Board is reviewing its alternatives allocation later this year.", "due_date": null}
+  ],
+  "D-203": [],
+  "D-204": [
+    {"type": "ask", "actor": "client", "subject": "Custody fee review", "text": "Client wants a review of custody fees before the October board meeting.", "due_date": null},
+    {"type": "concern", "actor": "client", "subject": "Fee benchmark study", "text": "Client has still not received the fee benchmark study.", "due_date": null},
+    {"type": "update", "actor": "client", "subject": "Board meeting", "text": "Client board meeting moved to October.", "due_date": null}
+  ],
+  "D-301": [
+    {"type": "interest", "actor": "client", "subject": "Direct lending", "text": "Principal is interested in direct lending.", "due_date": null},
+    {"type": "commitment", "actor": "firm", "subject": "Direct lending follow-up", "text": "We agreed to follow up after the summer.", "due_date": null}
+  ],
+  "D-401": [
+    {"type": "ask", "actor": "client", "subject": "Liquidity analysis", "text": "Client asked for an updated liquidity analysis before the annual review.", "due_date": null},
+    {"type": "stated_fact", "actor": "client", "subject": "Spending rate", "text": "Foundation will keep a 4.5% spending rate.", "due_date": null}
+  ]
+}

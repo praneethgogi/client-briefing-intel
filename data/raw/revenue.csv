@@ -1,0 +1,25 @@
+client_id,period,product_line,revenue_usd
+C001,2025-Q3,Prime Brokerage,1150000
+C001,2025-Q3,FX Execution,210000
+C001,2025-Q3,Custody,90000
+C001,2025-Q4,Prime Brokerage,1180000
+C001,2025-Q4,FX Execution,230000
+C001,2025-Q4,Custody,92000
+C001,2026-Q1,Prime Brokerage,1240000
+C001,2026-Q1,FX Execution,260000
+C001,2026-Q1,Custody,95000
+C001,2026-Q2,Prime Brokerage,1510000
+C001,2026-Q2,FX Execution,285000
+C001,2026-Q2,Custody,97000
+C002,2025-Q3,Custody,820000
+C002,2025-Q3,Transition Management,300000
+C002,2025-Q4,Custody,810000
+C002,2025-Q4,Transition Management,0
+C002,2026-Q1,Custody,790000
+C002,2026-Q1,Transition Management,150000
+C002,2026-Q2,Custody,700000
+C002,2026-Q2,Transition Management,0
+C004,2025-Q3,Advisory,140000
+C004,2025-Q4,Advisory,150000
+C004,2026-Q1,Advisory,155000
+C004,2026-Q2,Advisory,160000

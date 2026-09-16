@@ -1,0 +1,4 @@
+ticket_id,client_id,summary,severity,status,opened_at,closed_at
+T-9001,C001,Recurring settlement delays on EUR trades,High,Open,2026-07-02,
+T-9002,C001,Monthly statement format request,Low,Closed,2026-06-11,2026-08-01
+T-9101,C002,Late custody performance reporting,Medium,Open,2026-08-18,

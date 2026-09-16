@@ -1,0 +1,5 @@
+client_id,portfolio,period,return_pct,benchmark_pct,client_total_aum_usd,as_of
+C001,Northwind Credit SMA,2026-Q2,2.1,2.6,3800000000,2026-06-30
+C001,Northwind Credit SMA,2026-Q1,1.9,1.7,4150000000,2026-03-31
+C002,ETRS Core Fixed Income,2026-Q2,1.2,1.1,61500000000,2026-06-30
+C004,Meridian Balanced,2026-Q2,3.4,3.0,2300000000,2026-06-30

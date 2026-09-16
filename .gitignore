@@ -1,0 +1,19 @@
+# secrets
+.env
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+# generated data (rebuilt from app/datagen.py on start)
+data/briefing.db
+data/cache/
+evals/results/eval.db
+# node
+frontend/node_modules/
+frontend/dist/
+# os/editor
+.DS_Store
+.vscode/
+.idea/

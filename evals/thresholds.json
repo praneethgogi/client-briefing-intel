@@ -1,0 +1,15 @@
+{
+  "leakage_violations": {"max": 0},
+  "access_control_pass_rate": {"min": 1.0},
+  "citation_validity": {"min": 1.0},
+  "numeric_faithfulness": {"min": 1.0},
+  "question_coverage": {"min": 1.0},
+  "must_contain_recall": {"min": 0.9},
+  "conflict_recall": {"min": 1.0},
+  "ledger_status_accuracy": {"min": 1.0},
+  "withheld_accuracy": {"min": 1.0},
+  "entity_resolution_accuracy": {"min": 1.0},
+  "retrieval_hit_rate_at_5": {"min": 0.75},
+  "extraction_f1": {"min": 0.7},
+  "injection_extraction_items": {"max": 0}
+}
