@@ -82,7 +82,7 @@ flowchart LR
 Prerequisites: Python 3.11+, Node 18+, Git. An OpenAI API key is optional; without one, the app runs in **offline mode**.
 
 ```powershell
-git clone https://github.com/gogireddy123/client-briefing-intel.git
+git clone https://github.com/praneethgogi/client-briefing-intel.git
 cd client-briefing-intel
 .\scripts\setup.ps1            # venv + pip + npm, creates .env
 notepad .env                   # paste OPENAI_API_KEY=sk-...   (optional)
