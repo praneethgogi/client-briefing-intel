@@ -80,7 +80,11 @@ def eval_briefings(details: list) -> dict:
                 m["num_ok"] += 1
             else:
                 problems.append(f"ungrounded number: {x['text'][:60]}")
+        # Count the executive summary too. It is verified like any other bullet but is not in
+        # b["sections"], so counting only sections reported zero rejections while the summary was
+        # failing verification and silently falling back to deterministic text.
         m["rejected"] += sum(len(s["rejected"]) for s in b["sections"])
+        m["rejected"] += len(b["executive_summary"]["rejected"])
         for s in b["sections"]:
             m["cov_total"] += 1
             m["cov_ok"] += int(bool(s["bullets"]))
