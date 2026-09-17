@@ -45,7 +45,8 @@ Reset the demo data first. Two terminals and the browser open in advance, browse
 
 | Beat | Say this | Watch for |
 |---|---|---|
-| Build | "Ava is preparing for tomorrow's Northwind meeting with their new CIO." | 11 sources, 3 conflicts, 0 withheld, ~4s |
+| Build | "Ava is preparing for tomorrow's Northwind meeting with their new CIO." | 11 sources, 3 conflicts, 0 withheld, ~5s |
+| Prepare tab | "It opens on what matters walking in: talking points, what's open and due, what changed, what's uncertain. All seven questions are answered — they're one tab away." | **Prepare** is the default tab |
 | Talking points | "Three things that will actually come up. Each one cites its evidence." | The "LLM-written, verified" badge |
 | Click `CM1` | "Every statement is one click from the document it came from." | Source panel opens |
 | Ledger | "This ask arrived four days ago and **is not in the CRM**. It's due at this meeting. Today that gets missed." | "Not tracked in CRM" + "Due at this meeting" |
@@ -130,6 +131,9 @@ Yes, it's a config switch, and I validated both ways. There's a real portability
 
 ### Product and judgement
 
+**How would you deploy this?**
+Nginx in front, serving the built React bundle and proxying `/api` to uvicorn, so the browser sees one origin and there is no CORS surface. It's a `docker compose up`: a node stage builds the UI, the runtime image is just nginx plus static files, and the API container is never published to the host. It's a SQLite app, so one small node is the right shape — about four dollars a month on Hetzner, or free on Oracle's always-free tier. The thing I'd fix before exposing it publicly is authentication: identity is currently a demo header.
+
 **Why is this not just a memo?**
 A memo is stale the moment it's written and it ends when you close it. This is a loop: prepare, support the conversation, capture what happened, and feed that into the next briefing. The post-meeting capture is the part that compounds — every meeting leaves the relationship better documented than it found it.
 
@@ -165,7 +169,8 @@ Because the hard part of agentic infrastructure isn't getting a model to produce
 
 ## 6. Pre-flight
 
-- [ ] `.\scripts\run_backend.ps1` and `.\scripts\run_frontend.ps1`, browser at ~110%
+- [ ] `scripts/run_backend.ps1` and `scripts/run_frontend.ps1` (dev), browser at ~110%
+- [ ] Or the deployed shape: `scripts/run_backend.ps1` + `scripts/run_nginx.ps1` → http://localhost:8080
 - [ ] **Reset demo data** immediately before presenting
 - [ ] Health check shows `llm_mode: openai`
 - [ ] `.env` has the key; `LLM_MODE=offline` is the fallback if the network misbehaves

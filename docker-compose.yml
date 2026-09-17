@@ -1,0 +1,38 @@
+# Local deployment shaped like production: nginx is the only exposed port, and
+# it serves the built React bundle while proxying /api to uvicorn.
+#
+#   docker compose up --build        ->  http://localhost:8080
+#
+# The API key is read from .env, which is never copied into an image.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: deploy/api.Dockerfile
+    environment:
+      OPENAI_API_KEY:      ${OPENAI_API_KEY:-}
+      OPENAI_MODEL:        ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_EMBED_MODEL:  ${OPENAI_EMBED_MODEL:-text-embedding-3-small}
+      # No key means offline mode, so the stack still comes up without one.
+      LLM_MODE:            ${LLM_MODE:-auto}
+      AS_OF_DATE:          ${AS_OF_DATE:-2026-09-17}
+    volumes:
+      - cbi-data:/data
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/web.Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  cbi-data:

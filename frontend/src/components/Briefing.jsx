@@ -302,9 +302,9 @@ export default function Briefing({ client, user, onToast }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [selected, setSelected] = useState(null)
-  const [tab, setTab] = useState('briefing')
+  const [tab, setTab] = useState('prepare')
 
-  useEffect(() => { setB(null); setError(''); setSelected(null); setTab('briefing') }, [client?.client_id, user])
+  useEffect(() => { setB(null); setError(''); setSelected(null); setTab('prepare') }, [client?.client_id, user])
 
   const generate = async () => {
     setLoading(true); setError('')
@@ -367,10 +367,8 @@ export default function Briefing({ client, user, onToast }) {
       {header}
       <div className="stats">
         <div className="stat"><div className="v">{b.sources.length}</div><div className="l">sources you can see</div></div>
-        <div className="stat"><div className="v">{m.evidence_items}</div><div className="l">evidence items</div></div>
         <div className={`stat ${b.conflicts.length ? 'warn' : ''}`}><div className="v">{b.conflicts.length}</div><div className="l">conflicts found</div></div>
         <div className={`stat ${b.withheld.count ? 'warn' : ''}`}><div className="v">{b.withheld.count}</div><div className="l">withheld by access policy</div></div>
-        <div className="stat"><div className="v">{m.llm.calls}</div><div className="l">LLM calls ({b.generation.mode})</div></div>
         <div className="stat"><div className="v">{(m.latency_ms / 1000).toFixed(1)}s</div><div className="l">build time</div></div>
       </div>
       {b.withheld.count > 0 && (
@@ -380,13 +378,44 @@ export default function Briefing({ client, user, onToast }) {
         </div>
       )}
       <div className="tabs">
-        {[['briefing', 'Briefing'], ['trace', 'Run trace'], ['sources', 'Sources']].map(([k, l]) => (
+        {[['prepare', 'Prepare'], ['briefing', 'Full briefing'], ['trace', 'Run trace'], ['sources', 'Sources']].map(([k, l]) => (
           <button key={k} className={`tab ${tab === k ? 'active' : ''}`} onClick={() => setTab(k)}>{l}</button>
         ))}
       </div>
 
       <div className="split">
         <div className="stack">
+          {tab === 'prepare' && <>
+            <div className="card talking">
+              <div className="card-head">
+                <h3>Top talking points</h3>
+                <span className={`pill ${b.executive_summary.generation === 'llm' ? 'brand' : ''}`}>
+                  {b.executive_summary.generation === 'llm' ? 'LLM-written, verified' : 'Rules only, no LLM'}</span>
+              </div>
+              <ol>
+                {b.executive_summary.bullets.map((x, i) => (
+                  <li key={i}>{x.text}<Cites ids={x.citations} selected={selected} onSelect={setSelected} /></li>
+                ))}
+              </ol>
+            </div>
+            <SectionCard s={sec.commitments} selected={selected} onSelect={setSelected}>
+              <Ledger s={sec.commitments} onSelect={setSelected} selected={selected} />
+            </SectionCard>
+            <div className="grid-2">
+              <SectionCard s={sec.changes} selected={selected} onSelect={setSelected} />
+              <SectionCard s={sec.uncertainty} selected={selected} onSelect={setSelected}>
+                <Conflicts conflicts={b.conflicts} s={sec.uncertainty} onSelect={setSelected} selected={selected} />
+              </SectionCard>
+            </div>
+            <div className="card more">
+              <div>
+                <strong>That's what matters walking in.</strong>
+                <div className="q">The client snapshot, material metrics, opportunities and news are all answered
+                  in the full briefing.</div>
+              </div>
+              <button className="btn" onClick={() => setTab('briefing')}>Full briefing</button>
+            </div>
+          </>}
           {tab === 'briefing' && <>
             <div className="card talking">
               <div className="card-head">

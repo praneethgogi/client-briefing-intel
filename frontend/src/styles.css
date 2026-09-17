@@ -164,3 +164,12 @@ code { background: var(--muted-soft); padding: 1px 5px; border-radius: 4px; font
   .split { grid-template-columns: 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
 }
+
+/* Footer of the Prepare tab: the handoff into the full seven-section briefing. */
+.card.more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.card.more .q { margin-top: 2px; }

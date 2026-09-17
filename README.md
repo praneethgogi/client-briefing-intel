@@ -26,6 +26,10 @@ Before a client meeting, analysts search CRM, finance and product data, service 
 - **Controls access.** Identity is carried into every tool call. Checks happen at the row level (coverage), the field level (revenue is confidential) and the document level (classification × purpose). Material non-public information (MNPI) is never usable for a sales briefing and leaves **zero footprint**: it isn't even counted.
 - **Uses deterministic analysis where accuracy matters.** Metrics and materiality, conflict detection (AUM across systems, a stale CIO record, a CRM task that was actually completed), commitment status (Open / Due soon / Overdue / Done, plus flags such as *Not tracked in CRM*) and change detection are all plain code. Dates work the same way: an open ask with no stated deadline is due at the next meeting **from the calendar**, because relative references in an email ("by Thursday") are exactly what a model resolves unreliably — in this data set one of them disagrees with the booked date.
 - **Uses the LLM only where it adds value.** It extracts asks and commitments from free text, and phrases four narrative sections plus the talking points. Every generated bullet must cite evidence IDs and pass a **checker** (citations exist, numbers match their source, no restricted or injected content). If a bullet fails, the model retries once with feedback. If it still fails, the section falls back to deterministic bullets.
+- **Leads with the meeting, not the document.** The briefing opens on **Prepare**: the
+  three talking points, what is open and due, what changed, and what is uncertain. The
+  full seven-section briefing is one tab away. All seven questions are always answered;
+  they are not all equally urgent eighteen hours before a meeting.
 - **Drives the workflow.** Suggested actions become tasks with one click. The RM can approve and export the briefing (markdown with numbered sources). **Post-meeting capture** turns notes into tracked asks and commitments, so the next briefing starts where this meeting ended. A follow-up question box searches entitled documents and cites sources.
 - **Is observable.** A run trace shows each LangGraph step, every access-checked tool call, and LLM calls, tokens and latency. An audit log records builds, denials, approvals, exports, tasks and notes.
 - **Is evaluated.** A 13-metric scorecard runs as a **CI gate**: zero leakage, blocked access, citation validity, number accuracy, coverage of all 7 questions, conflict recall, ledger accuracy, entity-resolution accuracy, retrieval hit rate, extraction F1 against human labels, and prompt-injection resistance.
@@ -96,6 +100,20 @@ notepad .env                   # paste OPENAI_API_KEY=sk-...   (optional)
 If PowerShell blocks scripts: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 
 macOS/Linux: `make setup`, then `make api` and `make ui` in two terminals.
+
+### Running it the way it deploys
+
+The commands above use the Vite dev server. To run it as it is actually
+deployed — nginx serving the production build and proxying `/api` to uvicorn, so
+the browser sees one origin:
+
+```bash
+docker compose up --build      # http://localhost:8080
+```
+
+Or without Docker, using nginx for Windows: run `scripts/run_backend.ps1` in one
+terminal and `scripts/run_nginx.ps1` in another. See [deploy/README.md](deploy/README.md)
+for both paths, hosting options and the caveat about exposing this publicly.
 
 The database is built automatically on first start. Rebuild it any time with **Data & lineage → Reset demo data** or `python -m app.ingest.pipeline` (run from `backend/`). Add `--reextract` to force fresh LLM extraction.
 
