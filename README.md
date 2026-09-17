@@ -1,10 +1,58 @@
 # Client Briefing Intelligence
 
-A working prototype that redesigns how a coverage or relationship team prepares for a client meeting. It covers the whole path, **from pulling scattered data together to a verified, cited, access-checked briefing that feeds actions back into the workflow**.
+**A coverage team doesn't have a meeting. It has a calendar.**
 
-> All companies, people and events in this repo are **fictional and synthetic**. There is no real client or firm data.
+So this doesn't open on a document, and it doesn't open on a chat box. It opens on the
+week ahead, and answers the question that actually comes first: *which of these meetings
+can I walk into, and which need a person before they're ready?*
 
-![briefing](docs/screenshot_briefing.png)
+![Meeting readiness](docs/screenshot_week.png)
+
+> Everything here is **fictional and synthetic** — the companies, people, numbers and
+> events are all generated. There is no real client or firm data anywhere in this repo.
+
+The brief asked to reimagine the end-to-end workflow and explicitly said *not* to assume
+the answer is a memo or a chatbot. A memo is stale the moment it's written; a chatbot
+makes the human do the work of knowing what to ask. This is neither. It is a loop:
+
+| | | |
+|---|---|---|
+| **1 · Triage** | Every upcoming meeting is scored **Ready / Needs review / Blocked** from conflicting values, unresolved records, stale sources and untracked asks. | Rules only — no model, ~250 ms |
+| **2 · Hand off** | Data problems route to a steward, relationship problems to the coverage team — and you can only assign to someone already entitled to that client. | Assignment is a workflow action, never a grant |
+| **3 · Prepare** | The briefing answers seven questions, every statement cited and machine-checked against its source. | Shape and thresholds set by a YAML *pack* |
+| **4 · Capture** | Notes after the meeting become tracked asks and commitments, and feed tomorrow's triage. | The loop closes |
+
+### The one design rule
+
+> **The LLM reads and writes. Code decides.**
+
+Entity resolution, entitlements, every number, conflict detection, commitment status and
+the uncertainty section are plain code — because they must be exact, repeatable and
+explainable. The model does the two things it is genuinely better at: reading messy free
+text, and turning verified facts into readable prose. Even there it is fenced: it sees an
+evidence pack and nothing else, it must cite, and a verifier checks every citation and
+every number before anything reaches the screen. Fail twice and the section falls back to
+deterministic bullets.
+
+### Three things worth clicking
+
+- **`backend/app/briefing/readiness.py`** — triage, and why data and prep are deliberately
+  kept as separate axes rather than one blended score.
+- **`backend/app/briefing/packs.yaml`** — the briefing shape as configuration. A pack sets
+  emphasis, *never* coverage: loading fails if it omits one of the seven questions, and a
+  test pins that.
+- **`evals/run_evals.py`** — thirteen gates, run in CI on every push. When a gate failed I
+  fixed the prompt, never the threshold.
+
+### What the evaluation caught
+
+The offline suite was 13/13 green. The first run against the live model found five real
+defects — including one *in the evaluation itself*: the scorecard reported zero verifier
+rejections while the executive summary was failing verification on every single build and
+silently falling back. The metric summed rejections across sections, and the summary wasn't
+in the denominator. Both are fixed; the zero is now honest.
+
+An uninstrumented surface always looks perfect.
 
 ## The problem
 
@@ -21,6 +69,8 @@ Before a client meeting, analysts search CRM, finance and product data, service 
 | 7 | What is uncertain, conflicting or unavailable? | Uncertain / conflicting / unavailable |
 
 ## What it does
+
+![The briefing](docs/screenshot_briefing.png)
 
 - **Brings the data together.** A seeded synthetic data pack (12 structured sources and 18 documents) is ingested into one store with lineage, freshness and data-quality checks. Records are matched to clients in order: ID → LEI → alias → fuzzy match, with a review band. Near-misses such as *"Northwood Capital Group"* are held for review, never auto-merged.
 - **Controls access.** Identity is carried into every tool call. Checks happen at the row level (coverage), the field level (revenue is confidential) and the document level (classification × purpose). Material non-public information (MNPI) is never usable for a sales briefing and leaves **zero footprint**: it isn't even counted.
