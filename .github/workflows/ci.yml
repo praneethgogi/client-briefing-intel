@@ -12,6 +12,8 @@ jobs:
         run: cd backend && pytest -q
       - name: Evaluation gate (offline, deterministic)
         run: python -m evals.run_evals --offline
+      - name: First-run smoke test (starts the API from an empty store, no API key)
+        run: python scripts/smoke_test.py
       - name: LLM evaluation (only when the repo has an OPENAI_API_KEY secret)
         if: ${{ env.OPENAI_API_KEY != '' }}
         env:
@@ -24,5 +26,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: "20" }
+        with: { node-version: "22" }
       - run: cd frontend && npm install && npm run build

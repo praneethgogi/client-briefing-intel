@@ -54,13 +54,13 @@ function SectionCard({ s, children, selected, onSelect, defaultOpen = true }) {
           <span className={`pill ${tone}`} title={`attempts: ${s.attempts}`}>{label}</span>
         </span>
       </div>
-      {open && (children || <Bullets items={s.bullets} selected={selected} onSelect={onSelect} />)}
-      {open && s.rejected?.length > 0 && (
+      {open ? (children || <Bullets items={s.bullets} selected={selected} onSelect={onSelect} />) : null}
+      {open && s.rejected?.length ? (
         <details className="small" style={{ marginTop: 8 }}>
           <summary className="muted">{s.rejected.length} line(s) removed by the checker</summary>
           <ul>{s.rejected.map((r, i) => <li key={i}><code>{r.text}</code>: {r.problems.join('; ')}</li>)}</ul>
         </details>
-      )}
+      ) : null}
     </div>
   )
 }
@@ -433,7 +433,7 @@ export default function Briefing({ client, user, onToast, onChanged }) {
                 ))}
               </ol>
             </div>
-            {lead.map(renderSection)}
+            {lead.map((k) => renderSection(k))}
             <div className="card more">
               <div>
                 <strong>That's what matters walking in.</strong>
