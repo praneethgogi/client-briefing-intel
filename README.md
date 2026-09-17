@@ -8,6 +8,14 @@ can I walk into, and which need a person before they're ready?*
 
 ![Meeting readiness](docs/screenshot_week.png)
 
+> **Runs with no API key.** Clone it, run `setup.ps1`, start it — everything works.
+> Without a key it uses the deterministic path: narrative sections are labelled
+> *"Rules only, no LLM"* instead of *"LLM-written, verified"*. That is the design
+> working, not a failure — the app always degrades to code it can verify rather than
+> to nothing. Add a key to see the model-written sections. Either way the triage,
+> the commitment ledger, the conflicts, the entitlements and all thirteen evaluation
+> gates are unaffected, because none of them use a model.
+
 > Everything here is **fictional and synthetic** — the companies, people, numbers and
 > events are all generated. There is no real client or firm data anywhere in this repo.
 
@@ -140,7 +148,12 @@ flowchart LR
 
 ## Run it locally (Windows PowerShell)
 
-Prerequisites: Python 3.11+, Node 18+, Git. An OpenAI API key is optional; without one, the app runs in **offline mode**.
+Prerequisites: Python 3.11+, Node 18+, Git.
+
+**An API key is optional.** With no key the app runs the deterministic path end to end —
+briefings still build, cite and verify; only the narrative wording falls back to rules.
+`scripts/smoke_test.py` runs exactly this path in CI, from an empty database, so a
+first run on a clean clone is a tested case rather than a hope.
 
 ```powershell
 git clone https://github.com/praneethgogi/client-briefing-intel.git
