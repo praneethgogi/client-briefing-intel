@@ -10,12 +10,13 @@ demo data first so every recording starts from the same world.
 The video is sent rather than narrated, so it carries its own titles and captions:
 without them a viewer sees clicking and has to infer the point.
 
-Recording begins the moment the browser context is created, so the app is loaded
-and settled before anything worth watching happens - otherwise the opening seconds
-are a blank page and the first screen is effectively missing.
+Recording begins the moment the browser context is created, so the title card is
+installed as an init script and is therefore up from the first frame. Otherwise the
+opening seconds show a blank page and then the app painting itself.
 """
 from __future__ import annotations
 
+import json
 import pathlib
 import shutil
 import sys
@@ -50,6 +51,7 @@ OVERLAY_CSS = """
 #demo-cap .line { font-size: 23px; font-weight: 600; font-family: Georgia, serif; }
 #demo-cap .sub { font-size: 14px; color: #b9c6d6; margin-top: 5px; }
 
+html, body { background: #0a2240; }
 #demo-card {
   position: fixed; inset: 0; z-index: 99999; background: #0a2240; color: #fff;
   display: flex; flex-direction: column; justify-content: center; padding: 0 92px;
@@ -64,20 +66,38 @@ OVERLAY_CSS = """
 #demo-card .repo { color: #c8a24a; font-weight: 700; }
 """
 
-OVERLAY_JS = """
-() => {
-  if (document.getElementById('demo-cap')) return;
-  const cap = document.createElement('div');
-  cap.id = 'demo-cap';
-  cap.innerHTML = '<div class="step"></div><div class="line"></div><div class="sub"></div>';
-  document.body.appendChild(cap);
-  const card = document.createElement('div');
-  card.id = 'demo-card';
-  card.innerHTML = '<h1></h1><div class="rule"></div><h2></h2><div class="foot"></div>';
-  document.body.appendChild(card);
-}
+INIT_JS = """
+(() => {
+  // Runs at document-start, before the app's own scripts. document.body may not
+  // exist yet and documentElement may not either, so every hook is guarded and a
+  // poll backs them up: if this throws, the card never appears and the recording
+  // opens on the app painting itself.
+  const build = () => {
+    try {
+      if (!document.body || document.getElementById('demo-card')) return;
+      const st = document.createElement('style');
+      st.textContent = OVERLAY_CSS_PLACEHOLDER;
+      (document.head || document.documentElement).appendChild(st);
+      const cap = document.createElement('div');
+      cap.id = 'demo-cap';
+      cap.innerHTML = '<div class="step"></div><div class="line"></div><div class="sub"></div>';
+      document.body.appendChild(cap);
+      const card = document.createElement('div');
+      card.id = 'demo-card';
+      card.innerHTML = '<h1></h1><div class="rule"></div><h2></h2><div class="foot"></div>';
+      document.body.appendChild(card);
+    } catch (e) { /* retried by the poll below */ }
+  };
+  build();
+  try { document.addEventListener('DOMContentLoaded', build); } catch (e) {}
+  try {
+    if (document.documentElement) {
+      new MutationObserver(build).observe(document.documentElement, {childList: true, subtree: true});
+    }
+  } catch (e) {}
+  const t = setInterval(() => { build(); if (document.getElementById('demo-card')) clearInterval(t); }, 20);
+})();
 """
-
 
 def reset_demo_data() -> None:
     req = urllib.request.Request(f"{API}/api/admin/reset", method="POST",
@@ -92,8 +112,8 @@ class Demo:
 
     # -- overlay ----------------------------------------------------------
     def install(self) -> None:
-        self.page.add_style_tag(content=OVERLAY_CSS)
-        self.page.evaluate(OVERLAY_JS)
+        """The init script builds the overlay; this only confirms it is there."""
+        self.page.wait_for_selector("#demo-card", state="attached", timeout=15000)
 
     def card(self, title: str, sub: str, foot: str = "", hold: int = CARD) -> None:
         self.page.evaluate(
@@ -155,20 +175,23 @@ def main() -> int:
         ctx = browser.new_context(viewport={"width": W, "height": H},
                                   record_video_dir=str(OUT),
                                   record_video_size={"width": W, "height": H})
+        # Registered before any page exists, so the card is up from the first frame
+        # and the app is never seen loading underneath it.
+        ctx.add_init_script(INIT_JS.replace("OVERLAY_CSS_PLACEHOLDER", json.dumps(OVERLAY_CSS)))
         page = ctx.new_page()
         d = Demo(page)
 
         # Load and settle BEFORE anything worth filming. The recording is already
         # running, so this is the blank stretch - keep it short and get a card up.
-        page.goto(UI, wait_until="networkidle")
-        page.wait_for_selector("text=Your week", timeout=60000)
-        page.wait_for_timeout(1200)
+        page.goto(UI, wait_until="commit")
         d.install()
-
+        # Title up first; the app loads behind the card, not in front of the viewer.
         d.card("Client Briefing Intelligence",
                "A coverage team doesn’t have a meeting. It has a calendar.",
                "Working prototype · synthetic data throughout<br>"
                "<span class='repo'>github.com/praneethgogi/client-briefing-intel</span>")
+        page.wait_for_selector("text=Your week", timeout=60000)
+        page.wait_for_timeout(900)
         d.card_off()
 
         # 1 -- the landing view, held still so it actually registers
