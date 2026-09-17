@@ -34,6 +34,13 @@ evidence pack and nothing else, it must cite, and a verifier checks every citati
 every number before anything reaches the screen. Fail twice and the section falls back to
 deterministic bullets.
 
+### How it actually works
+
+**[docs/DESIGN.md](docs/DESIGN.md)** is the technical write-up: the two ingestion paths
+(structured resolution vs. schema-validated extraction from prose), hybrid retrieval with
+the entitlement filter ahead of scoring, how a section is drafted and verified, exactly
+what the verifier checks, and what each of the thirteen evaluation gates measures.
+
 ### Three things worth clicking
 
 - **`backend/app/briefing/readiness.py`** — triage, and why data and prep are deliberately
