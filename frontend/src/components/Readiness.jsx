@@ -1,4 +1,5 @@
 import React from 'react'
+import { AssignControl, Inbox } from './Assign.jsx'
 
 export const STATE_CLASS = {
   Ready: 'ok',
@@ -11,18 +12,26 @@ export function StateDot({ state }) {
   return <span className={`dot ${STATE_CLASS[state] || ''}`} title={state} />
 }
 
-function ReasonList({ title, reasons, empty }) {
+function ReasonList({ title, reasons, empty, clientId, assigned, onAssigned, onToast }) {
   if (!reasons.length) return <div className="q">{empty}</div>
+  const isAssigned = (text) => assigned.find((a) => a.text === text.slice(0, 300))
   return (
     <>
       <div className="small muted" style={{ marginBottom: 4 }}>{title}</div>
       <ul className="reasons">
-        {reasons.map((r, i) => (
-          <li key={i}>
-            <span className={`sev ${r.severity}`}>{r.severity}</span>
-            {r.text}
-          </li>
-        ))}
+        {reasons.map((r, i) => {
+          const a = isAssigned(r.text)
+          return (
+            <li key={i}>
+              <span className={`sev ${r.severity}`}>{r.severity}</span>
+              <span style={{ flex: 1 }}>{r.text}</span>
+              {a
+                ? <span className="small muted">with {a.assigned_to}</span>
+                : <AssignControl clientId={clientId} axis={r.axis} text={r.text}
+                    onAssigned={onAssigned} onToast={onToast} />}
+            </li>
+          )
+        })}
       </ul>
     </>
   )
@@ -33,7 +42,8 @@ function ReasonList({ title, reasons, empty }) {
  * "write me a briefing" but "which of these can I walk into". Computed entirely in
  * code - no model is called - so it is cheap enough to run on every page load.
  */
-export default function Readiness({ data, loading, onOpen, onRefresh }) {
+export default function Readiness({ data, loading, onOpen, onRefresh, inbox = [],
+  onResolve, busyId, onToast }) {
   if (loading && !data) return <div className="card empty"><h2>Checking your meetings…</h2></div>
   if (!data) return null
 
@@ -73,6 +83,8 @@ export default function Readiness({ data, loading, onOpen, onRefresh }) {
         briefing itself is written and checked.
       </div>
 
+      <Inbox items={inbox} onResolve={onResolve} busyId={busyId} />
+
       {attention.length > 0 && (
         <>
           <h3 className="section-label">Needs a person first</h3>
@@ -92,11 +104,15 @@ export default function Readiness({ data, loading, onOpen, onRefresh }) {
                 <div className="grid-2" style={{ marginTop: 10 }}>
                   <div>
                     <ReasonList title="Data — can the briefing be trusted?" reasons={m.data}
-                      empty="No data issues. The briefing can be trusted." />
+                      empty="No data issues. The briefing can be trusted."
+                      clientId={m.client_id} assigned={m.assignments || []}
+                      onAssigned={onRefresh} onToast={onToast} />
                   </div>
                   <div>
                     <ReasonList title="Prep — is there work outstanding?" reasons={m.prep}
-                      empty="Nothing outstanding on the relationship." />
+                      empty="Nothing outstanding on the relationship."
+                      clientId={m.client_id} assigned={m.assignments || []}
+                      onAssigned={onRefresh} onToast={onToast} />
                   </div>
                 </div>
               </div>

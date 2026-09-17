@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-09-17 09:38:11",
+  "run_at": "2026-09-17 10:09:25",
   "llm_mode": "openai",
   "model": "gpt-4o-mini",
   "passed": true,
@@ -98,12 +98,12 @@
   },
   "operational": {
     "briefings": 4,
-    "latency_p50_ms": 4218.6,
-    "latency_max_ms": 8158.0,
+    "latency_p50_ms": 3994.5,
+    "latency_max_ms": 9893.3,
     "llm_calls": 21,
-    "llm_tokens": 19140,
+    "llm_tokens": 19125,
     "verifier_rejections": 0,
-    "total_runtime_s": 38.9
+    "total_runtime_s": 42.9
   },
   "extraction": {
     "mode": "llm (gpt-4o-mini)",
@@ -128,8 +128,8 @@
     "llm": {
       "calls": 17,
       "prompt_tokens": 17965,
-      "completion_tokens": 1246,
-      "latency_ms": 17658.3,
+      "completion_tokens": 1245,
+      "latency_ms": 19811.5,
       "errors": []
     }
   },
@@ -146,7 +146,7 @@
         "news": "llm",
         "uncertainty": "deterministic"
       },
-      "latency_ms": 8158.0
+      "latency_ms": 9893.3
     },
     {
       "case": "nw-analyst",
@@ -160,7 +160,7 @@
         "news": "llm",
         "uncertainty": "deterministic"
       },
-      "latency_ms": 4470.3
+      "latency_ms": 4250.1
     },
     {
       "case": "etrs-banker",
@@ -174,7 +174,7 @@
         "news": "llm",
         "opportunities": "llm"
       },
-      "latency_ms": 3967.0
+      "latency_ms": 3738.9
     },
     {
       "case": "solstice-missing-data",
@@ -188,7 +188,7 @@
         "metrics": "deterministic",
         "news": "llm"
       },
-      "latency_ms": 2926.1
+      "latency_ms": 3036.0
     }
   ],
   "notes": {

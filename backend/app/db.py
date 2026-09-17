@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS briefings (briefing_id TEXT PRIMARY KEY, client_id TE
     status TEXT, approved_by TEXT, payload TEXT);
 CREATE TABLE IF NOT EXISTS app_actions (action_id TEXT PRIMARY KEY, client_id TEXT, title TEXT, owner TEXT,
     due_date TEXT, status TEXT, created_by TEXT, created_at TEXT, origin TEXT);
+CREATE TABLE IF NOT EXISTS assignments (assignment_id TEXT PRIMARY KEY, client_id TEXT, axis TEXT,
+    text TEXT, assigned_to TEXT, assigned_by TEXT, status TEXT, note TEXT, created_at TEXT, resolved_at TEXT);
 CREATE TABLE IF NOT EXISTS audit_log (ts TEXT, user_id TEXT, event TEXT, client_id TEXT, detail TEXT);
 """
 

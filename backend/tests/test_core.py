@@ -122,3 +122,37 @@ def test_pack_selection_falls_back_and_sets_thresholds():
     fallback = packs.select("Sovereign Wealth", "Annual catch-up")
     assert fallback.id == packs.default_pack().id
     assert fallback.materiality.performance_bps == 25
+
+
+def test_assignment_cannot_widen_access():
+    """Handing work to a teammate is a workflow action, never a grant.
+
+    If an assignment could name someone outside the coverage list, 'please look at
+    this' becomes a way around the entitlement model.
+    """
+    with TestClient(app) as c:
+        ava = {"X-User-Id": "ava.chen"}
+        eligible = c.get("/api/clients/C001/assignees", headers=ava).json()
+        names = {e["user_id"] for e in eligible}
+        assert "leo.park" in names          # covers C001
+        assert "ben.osei" not in names      # does not
+        assert "ava.chen" not in names      # never yourself
+
+        ok = c.post("/api/assignments", headers=ava, json={
+            "client_id": "C001", "axis": "data", "text": "Northwood held for review",
+            "assign_to": "leo.park"}).json()
+        assert ok["status"] == "Open"
+
+        denied = c.post("/api/assignments", headers=ava, json={
+            "client_id": "C001", "axis": "data", "text": "should never land",
+            "assign_to": "ben.osei"})
+        assert denied.status_code == 403
+
+        # The assignee sees it; someone who cannot see the client never does.
+        mine = c.get("/api/assignments?mine=true", headers={"X-User-Id": "leo.park"}).json()
+        assert any(a["assignment_id"] == ok["assignment_id"] for a in mine)
+        assert c.get("/api/assignments", headers={"X-User-Id": "ben.osei"}).json() == []
+
+        done = c.post(f"/api/assignments/{ok['assignment_id']}/resolve",
+                      headers={"X-User-Id": "leo.park"}, json={"note": "Separate firm."}).json()
+        assert done["status"] == "Resolved"

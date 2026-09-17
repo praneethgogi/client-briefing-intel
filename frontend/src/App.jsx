@@ -15,6 +15,8 @@ export default function App() {
   const [view, setView] = useState('week')
   const [readiness, setReadiness] = useState(null)
   const [loadingReadiness, setLoadingReadiness] = useState(false)
+  const [inbox, setInbox] = useState([])
+  const [busyAssignment, setBusyAssignment] = useState('')
   const [toast, setToast] = useState('')
   const [err, setErr] = useState('')
 
@@ -25,13 +27,24 @@ export default function App() {
 
   const loadReadiness = () => {
     setLoadingReadiness(true)
+    api.assignments(true).then(setInbox).catch(() => setInbox([]))
     return api.readiness().then(setReadiness).catch(() => setReadiness(null))
       .finally(() => setLoadingReadiness(false))
+  }
+
+  const resolveAssignment = async (a) => {
+    setBusyAssignment(a.assignment_id)
+    try {
+      await api.resolveAssignment(a.assignment_id, null)
+      showToast('Resolved. The meeting has been re-checked.')
+      await loadReadiness()
+    } catch (e) { showToast(e.message) } finally { setBusyAssignment('') }
   }
 
   useEffect(() => {
     setUser(user)
     setReadiness(null)
+    setInbox([])
     api.clients().then((cs) => {
       setClients(cs)
       setClientId((cur) => (cs.some((c) => c.client_id === cur) ? cur : cs[0]?.client_id || null))
@@ -65,9 +78,11 @@ export default function App() {
           <div className="side-title">Upcoming meetings</div>
           <button className={`nav-item ${view === 'week' ? 'active' : ''}`} onClick={() => setView('week')}>
             Your week
-            {readiness && readiness.needs_attention > 0 && (
-              <span className="count warn">{readiness.needs_attention}</span>
-            )}
+            {inbox.length > 0
+              ? <span className="count warn">{inbox.length} for you</span>
+              : readiness && readiness.needs_attention > 0
+                ? <span className="count">{readiness.needs_attention}</span>
+                : null}
           </button>
           {clients.map((c) => (
             <button key={c.client_id} className={`client-item ${view === 'briefing' && c.client_id === clientId ? 'active' : ''}`}
@@ -94,7 +109,9 @@ export default function App() {
           {err && <div className="error" style={{ marginBottom: 12 }}>{err}</div>}
           {view === 'week' && (
             <Readiness data={readiness} loading={loadingReadiness} onRefresh={loadReadiness}
-              onOpen={(cid) => { setClientId(cid); setView('briefing') }} />
+              onOpen={(cid) => { setClientId(cid); setView('briefing') }}
+              inbox={inbox} onResolve={resolveAssignment} busyId={busyAssignment}
+              onToast={showToast} />
           )}
           {view === 'briefing' && (
             <Briefing client={client} user={user} onToast={showToast} onChanged={loadReadiness} />

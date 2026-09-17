@@ -103,6 +103,40 @@ def client_readiness(client_id: str, p: Principal = Depends(principal)):
     return readiness.for_client(p, client_id).as_dict()
 
 
+class AssignIn(BaseModel):
+    client_id: str
+    axis: str = Field(default="prep")
+    text: str
+    assign_to: str
+
+
+class ResolveIn(BaseModel):
+    note: str | None = None
+
+
+@app.get("/api/assignments")
+def assignments(mine: bool = False, p: Principal = Depends(principal)):
+    return service.list_assignments(p, mine_only=mine)
+
+
+@app.get("/api/clients/{client_id}/assignees")
+def assignees(client_id: str, p: Principal = Depends(principal)):
+    return service.eligible_assignees(p, client_id)
+
+
+@app.post("/api/assignments")
+def create_assignment(body: AssignIn, p: Principal = Depends(principal)):
+    return service.assign(p, body.client_id, body.axis, body.text, body.assign_to)
+
+
+@app.post("/api/assignments/{assignment_id}/resolve")
+def resolve_assignment(assignment_id: str, body: ResolveIn, p: Principal = Depends(principal)):
+    try:
+        return service.resolve_assignment(p, assignment_id, body.note)
+    except KeyError:
+        raise HTTPException(404, "assignment not found")
+
+
 @app.get("/api/clients/{client_id}/profile")
 def profile(client_id: str, p: Principal = Depends(principal)):
     return T.get_client_profile(p, client_id)

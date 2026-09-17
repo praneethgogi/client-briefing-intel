@@ -57,6 +57,7 @@ class MeetingReadiness:
     state: str
     reasons: list[Reason] = field(default_factory=list)
     counts: dict = field(default_factory=dict)
+    assignments: list = field(default_factory=list)
 
     @property
     def data_reasons(self) -> list[Reason]:
@@ -71,7 +72,8 @@ class MeetingReadiness:
                     meeting_date=self.meeting_date, purpose=self.purpose,
                     state=self.state, counts=self.counts,
                     data=[r.as_dict() for r in self.data_reasons],
-                    prep=[r.as_dict() for r in self.prep_reasons])
+                    prep=[r.as_dict() for r in self.prep_reasons],
+                    assignments=self.assignments)
 
 
 def _plural(n: int, one: str, many: str | None = None) -> str:
@@ -149,6 +151,12 @@ def for_client(p: Principal, client_id: str) -> MeetingReadiness:
     else:
         state = READY
 
+    # Work already handed to a teammate is shown as in hand rather than outstanding.
+    # Without this the queue keeps nagging about something somebody is already doing.
+    from .. import service
+    open_assignments = [a for a in service.list_assignments(p, client_id=client_id)
+                        if a["status"] == "Open"]
+
     meeting = profile.get("next_meeting") or {}
     return MeetingReadiness(
         client_id=client_id,
@@ -157,6 +165,7 @@ def for_client(p: Principal, client_id: str) -> MeetingReadiness:
         purpose=meeting.get("purpose"),
         state=state,
         reasons=reasons,
+        assignments=open_assignments,
         counts=dict(conflicts=len(conflicts), overdue=len(overdue), due_at_meeting=len(at_meeting),
                     untracked=len(untracked), data_issues=len(dq), open_items=len(
                         [l for l in ledger if l["status"] != "Done"])),

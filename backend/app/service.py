@@ -14,7 +14,7 @@ from .briefing.verify import verify_bullets
 from .ingest.extract import ExtractedItem, extract_with_llm
 from .ingest.resolve import Resolver
 from .retrieval.search import search_documents
-from .security.entitlements import Principal
+from .security.entitlements import AccessDenied, Principal
 
 
 def audit(user_id: str, event: str, client_id: str | None = None, detail: dict | str | None = None) -> None:
@@ -250,3 +250,88 @@ def resolve_preview(ref: str) -> dict:
 
 __all__ = ["generate", "get_briefing", "approve", "export_markdown", "create_action", "capture_notes", "ask",
            "same_subject"]
+
+
+# ---------------------------------------------------------------- team handoff
+# Preparing for a meeting is a team activity: the brief says "a sales, relationship
+# or coverage team". The readiness queue already separates work that needs a data
+# steward from work that needs the coverage team - assigning it is what turns that
+# split into an actual handoff.
+def _teammates_for(client_id: str) -> set[str]:
+    """Who may be handed work on this client: only people entitled to see it."""
+    from .security.entitlements import PERSONAS, get_principal
+    out = set()
+    for uid in PERSONAS:
+        try:
+            get_principal(uid).require_client(client_id)
+            out.add(uid)
+        except AccessDenied:
+            continue
+    return out
+
+
+def eligible_assignees(principal: Principal, client_id: str) -> list[dict]:
+    from .security.entitlements import PERSONAS
+    principal.require_client(client_id)
+    return [dict(user_id=u, display=PERSONAS[u]["display"], role=PERSONAS[u]["role"])
+            for u in sorted(_teammates_for(client_id)) if u != principal.user_id]
+
+
+def assign(principal: Principal, client_id: str, axis: str, text: str, assign_to: str) -> dict:
+    """Hand a readiness item to a teammate.
+
+    The assignee must already be entitled to the client. Assignment is a workflow
+    action, not a grant: it can never widen somebody's access, or 'please look at
+    this' becomes a way around the entitlement model.
+    """
+    principal.require_client(client_id)
+    if assign_to not in _teammates_for(client_id):
+        raise AccessDenied(f"{assign_to} does not cover {client_id}; assignment would widen access")
+    row = dict(assignment_id=f"ASG-{uuid.uuid4().hex[:6].upper()}", client_id=client_id,
+               axis=axis if axis in ("data", "prep") else "prep", text=text.strip()[:300],
+               assigned_to=assign_to, assigned_by=principal.user_id, status="Open", note=None,
+               created_at=datetime.now().isoformat(timespec="seconds"), resolved_at=None)
+    with db.session() as conn:
+        conn.execute("INSERT INTO assignments VALUES (?,?,?,?,?,?,?,?,?,?)", tuple(row.values()))
+    audit(principal.user_id, "assignment.created", client_id, row)
+    return row
+
+
+def list_assignments(principal: Principal, client_id: str | None = None,
+                     mine_only: bool = False) -> list[dict]:
+    sql = "SELECT * FROM assignments WHERE 1=1"
+    params: list = []
+    if client_id:
+        principal.require_client(client_id)
+        sql += " AND client_id=?"
+        params.append(client_id)
+    if mine_only:
+        sql += " AND assigned_to=?"
+        params.append(principal.user_id)
+    with db.session() as conn:
+        rows = [dict(r) for r in conn.execute(sql + " ORDER BY created_at DESC", params)]
+    # Never show an assignment on a client this user cannot see, even their own.
+    keep = []
+    for r in rows:
+        try:
+            principal.require_client(r["client_id"])
+            keep.append(r)
+        except AccessDenied:
+            continue
+    return keep
+
+
+def resolve_assignment(principal: Principal, assignment_id: str, note: str | None = None) -> dict:
+    with db.session() as conn:
+        row = conn.execute("SELECT * FROM assignments WHERE assignment_id=?", (assignment_id,)).fetchone()
+        if row is None:
+            raise KeyError(assignment_id)
+        row = dict(row)
+        principal.require_client(row["client_id"])
+        if principal.user_id not in (row["assigned_to"], row["assigned_by"]):
+            raise AccessDenied("only the assignee or the person who raised it can close this")
+        conn.execute("UPDATE assignments SET status=?, note=?, resolved_at=? WHERE assignment_id=?",
+                     ("Resolved", note, datetime.now().isoformat(timespec="seconds"), assignment_id))
+    row.update(status="Resolved", note=note)
+    audit(principal.user_id, "assignment.resolved", row["client_id"], row)
+    return row

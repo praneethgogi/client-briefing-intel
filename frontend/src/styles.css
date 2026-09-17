@@ -252,3 +252,30 @@ ul.reasons li {
 
 .stat.ok  .v { color: #1b7f4b; }
 .stat.bad .v { color: #b42318; }
+
+/* ---- Team handoff ------------------------------------------------------ */
+.link-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #1f5ea8;
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  text-decoration: underline;
+  flex: none;
+}
+.link-btn:hover { color: #123a66; }
+
+.assign-pop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: none;
+}
+
+.card.inbox { border-left: 3px solid #b16a00; margin-bottom: 14px; }
+.card.inbox ul.reasons li { gap: 10px; padding: 5px 0; }
+
+.nav-item .count.warn { background: #fdf0d5; color: #8a5200; font-weight: 600; }
