@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 
 from .. import config, db, llm, service
+from ..briefing import readiness
 from ..ingest import pipeline
 from ..security.entitlements import PERSONAS, AccessDenied, Principal, get_principal
 from ..tools import structured as T
@@ -89,6 +90,17 @@ def me(p: Principal = Depends(principal)):
 @app.get("/api/clients")
 def clients(p: Principal = Depends(principal)):
     return T.list_clients(p)
+
+
+@app.get("/api/readiness")
+def calendar_readiness(p: Principal = Depends(principal)):
+    """Triage across every meeting this user covers. No model is called."""
+    return readiness.for_calendar(p)
+
+
+@app.get("/api/clients/{client_id}/readiness")
+def client_readiness(client_id: str, p: Principal = Depends(principal)):
+    return readiness.for_client(p, client_id).as_dict()
 
 
 @app.get("/api/clients/{client_id}/profile")

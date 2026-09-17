@@ -1,0 +1,87 @@
+# Briefing packs.
+#
+# A quarterly review with a hedge fund is not a fee review with a pension, and it is
+# not an intro with a family office. The engine is the same for all of them; what
+# changes is which questions lead, in what order, and where the materiality line sits.
+# That difference belongs in configuration, not in forked code - so a new desk or
+# meeting type is a YAML entry and a review, not a release.
+#
+# The seven questions are the contract and every pack answers all seven. A pack
+# decides emphasis and thresholds, never coverage.
+#
+# Selection: the first pack whose `when` matches wins; `default` is the fallback.
+#   segments        - client segment, any match
+#   purpose_matches - case-insensitive substring of the meeting purpose
+#
+# Section keys are the registry in sections.py:
+#   snapshot, changes, commitments, metrics, opportunities, news, uncertainty
+
+default: standard
+
+packs:
+  - id: standard
+    label: Standard relationship review
+    focus: Balanced view across all seven questions.
+    lead: [commitments, changes, uncertainty]
+    order: [snapshot, changes, commitments, metrics, opportunities, news, uncertainty]
+    materiality:
+      revenue_move_pct: 10
+      holdings_move_pct: 10
+      performance_bps: 25
+
+  - id: hedge_fund_review
+    label: Hedge fund quarterly review
+    focus: >-
+      Trading and financing relationships move fast, so balances and performance lead
+      and the materiality line is tighter than for a long-only book.
+    when:
+      segments: [Hedge Fund]
+    lead: [commitments, changes, uncertainty]
+    order: [changes, commitments, metrics, opportunities, snapshot, news, uncertainty]
+    materiality:
+      revenue_move_pct: 10
+      holdings_move_pct: 10
+      performance_bps: 20
+
+  - id: fee_and_custody
+    label: Fee and custody review
+    focus: >-
+      The client called this meeting about fees. Outstanding commitments and the
+      service record lead; opportunities are deliberately demoted - pitching into a
+      fee complaint is how you lose a mandate.
+    when:
+      purpose_matches: [fee, custody]
+    lead: [commitments, uncertainty, changes]
+    order: [commitments, metrics, changes, uncertainty, snapshot, news, opportunities]
+    materiality:
+      revenue_move_pct: 5
+      holdings_move_pct: 10
+      performance_bps: 25
+
+  - id: pension_review
+    label: Public pension review
+    focus: >-
+      Governance-led and board-driven. Performance against benchmark carries more
+      weight than quarterly revenue movement.
+    when:
+      segments: [Public Pension]
+    lead: [commitments, changes, uncertainty]
+    order: [snapshot, metrics, commitments, changes, opportunities, news, uncertainty]
+    materiality:
+      revenue_move_pct: 15
+      holdings_move_pct: 15
+      performance_bps: 15
+
+  - id: sparse_relationship
+    label: Early or sparse relationship
+    focus: >-
+      Thin history. What we do not know matters more than what we do, so the
+      uncertainty section leads rather than closing the briefing.
+    when:
+      segments: [Family Office]
+    lead: [uncertainty, commitments, changes]
+    order: [uncertainty, snapshot, commitments, changes, opportunities, metrics, news]
+    materiality:
+      revenue_move_pct: 20
+      holdings_move_pct: 20
+      performance_bps: 25

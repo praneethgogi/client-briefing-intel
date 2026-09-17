@@ -4,6 +4,7 @@ import Briefing from './components/Briefing.jsx'
 import Platform from './components/Platform.jsx'
 import Evals from './components/Evals.jsx'
 import Audit from './components/Audit.jsx'
+import Readiness, { StateDot } from './components/Readiness.jsx'
 
 export default function App() {
   const [personas, setPersonas] = useState([])
@@ -11,7 +12,9 @@ export default function App() {
   const [health, setHealth] = useState(null)
   const [clients, setClients] = useState([])
   const [clientId, setClientId] = useState(null)
-  const [view, setView] = useState('briefing')
+  const [view, setView] = useState('week')
+  const [readiness, setReadiness] = useState(null)
+  const [loadingReadiness, setLoadingReadiness] = useState(false)
   const [toast, setToast] = useState('')
   const [err, setErr] = useState('')
 
@@ -20,13 +23,23 @@ export default function App() {
     api.personas().then(setPersonas).catch(() => {})
   }, [])
 
+  const loadReadiness = () => {
+    setLoadingReadiness(true)
+    return api.readiness().then(setReadiness).catch(() => setReadiness(null))
+      .finally(() => setLoadingReadiness(false))
+  }
+
   useEffect(() => {
     setUser(user)
+    setReadiness(null)
     api.clients().then((cs) => {
       setClients(cs)
       setClientId((cur) => (cs.some((c) => c.client_id === cur) ? cur : cs[0]?.client_id || null))
     }).catch(() => setClients([]))
+    loadReadiness()
   }, [user])
+
+  const stateFor = (cid) => readiness?.meetings.find((m) => m.client_id === cid)?.state
 
   const showToast = (m) => { setToast(m); setTimeout(() => setToast(''), 3500) }
   const persona = personas.find((p) => p.user_id === user)
@@ -50,10 +63,16 @@ export default function App() {
       <div className="body">
         <aside className="sidebar">
           <div className="side-title">Upcoming meetings</div>
+          <button className={`nav-item ${view === 'week' ? 'active' : ''}`} onClick={() => setView('week')}>
+            Your week
+            {readiness && readiness.needs_attention > 0 && (
+              <span className="count warn">{readiness.needs_attention}</span>
+            )}
+          </button>
           {clients.map((c) => (
             <button key={c.client_id} className={`client-item ${view === 'briefing' && c.client_id === clientId ? 'active' : ''}`}
               onClick={() => { setClientId(c.client_id); setView('briefing') }}>
-              {c.legal_name}
+              <span className="row-line"><StateDot state={stateFor(c.client_id)} />{c.legal_name}</span>
               <span className="sub">{c.next_meeting} · {c.segment}</span>
             </button>
           ))}
@@ -73,7 +92,13 @@ export default function App() {
         </aside>
         <main className="main">
           {err && <div className="error" style={{ marginBottom: 12 }}>{err}</div>}
-          {view === 'briefing' && <Briefing client={client} user={user} onToast={showToast} />}
+          {view === 'week' && (
+            <Readiness data={readiness} loading={loadingReadiness} onRefresh={loadReadiness}
+              onOpen={(cid) => { setClientId(cid); setView('briefing') }} />
+          )}
+          {view === 'briefing' && (
+            <Briefing client={client} user={user} onToast={showToast} onChanged={loadReadiness} />
+          )}
           {view === 'platform' && <Platform user={user} onToast={showToast} />}
           {view === 'evals' && <Evals />}
           {view === 'audit' && <Audit user={user} />}

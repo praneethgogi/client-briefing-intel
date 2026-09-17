@@ -1,4 +1,4 @@
-# Eval run 2026-09-16 22:27:18 - PASS
+# Eval run 2026-09-17 09:38:11 - PASS
 LLM mode: openai gpt-4o-mini
 
 | Metric | Value | Gate | Result |
@@ -19,12 +19,12 @@ LLM mode: openai gpt-4o-mini
 
 ## Operational
 - briefings: 4
-- latency_p50_ms: 3829.2
-- latency_max_ms: 10315.2
+- latency_p50_ms: 4218.6
+- latency_max_ms: 8158.0
 - llm_calls: 21
-- llm_tokens: 19234
+- llm_tokens: 19140
 - verifier_rejections: 0
-- total_runtime_s: 40.6
+- total_runtime_s: 38.9
 
 ## Case findings
 - **nw-banker**: no issues

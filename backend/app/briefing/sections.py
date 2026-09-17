@@ -31,6 +31,7 @@ class Ctx:
     chosen_aum: float | None
     since: str | None
     sources: list | None = None
+    pack: object | None = None   # the BriefingPack in force; set in prepare()
 
 
 class Pack:

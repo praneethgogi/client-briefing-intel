@@ -173,3 +173,82 @@ code { background: var(--muted-soft); padding: 1px 5px; border-radius: 4px; font
   gap: 16px;
 }
 .card.more .q { margin-top: 2px; }
+
+/* ---- Meeting readiness: triage across the calendar ---------------------- */
+.dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background: #cbd5e1;
+  flex: none;
+}
+.dot.ok   { background: #1b7f4b; }
+.dot.warn { background: #b16a00; }
+.dot.bad  { background: #b42318; }
+
+.row-line { display: flex; align-items: center; }
+
+.nav-item .count {
+  float: right;
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  background: #e7eef6;
+  color: #123a66;
+}
+.nav-item .count.warn { background: #fdf0d5; color: #8a5200; }
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.page-head h1 { margin: 0 0 4px; font-size: 26px; color: #123a66; }
+.page-head .sub { color: #5a6b7d; font-size: 14px; }
+
+.section-label {
+  margin: 22px 0 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #5a6b7d;
+}
+
+.card.triage { border-left: 3px solid #cbd5e1; }
+.card.triage.ok   { border-left-color: #1b7f4b; }
+.card.triage.warn { border-left-color: #b16a00; }
+.card.triage.bad  { border-left-color: #b42318; }
+.card.triage.compact { padding-bottom: 12px; }
+
+ul.reasons { margin: 0; padding-left: 0; list-style: none; }
+ul.reasons li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 13.5px;
+}
+.sev {
+  flex: none;
+  min-width: 52px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  text-align: center;
+  background: #eef2f6;
+  color: #5a6b7d;
+}
+.sev.high   { background: #fde8e6; color: #b42318; }
+.sev.medium { background: #fdf0d5; color: #8a5200; }
+.sev.low    { background: #eef2f6; color: #5a6b7d; }
+
+.stat.ok  .v { color: #1b7f4b; }
+.stat.bad .v { color: #b42318; }

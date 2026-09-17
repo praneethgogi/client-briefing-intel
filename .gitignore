@@ -17,3 +17,6 @@ frontend/dist/
 .DS_Store
 .vscode/
 .idea/
+
+# Interview prep: deck, talk track and working notes stay local, not in a public repo.
+presentation/

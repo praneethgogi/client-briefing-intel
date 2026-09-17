@@ -21,6 +21,7 @@ export const api = {
   health: () => call('GET', '/health'),
   personas: () => call('GET', '/personas'),
   clients: () => call('GET', '/clients'),
+  readiness: () => call('GET', '/readiness'),
   generate: (cid) => call('POST', `/clients/${cid}/briefings`),
   approve: (bid) => call('POST', `/briefings/${bid}/approve`, {}),
   exportMd: (bid) => call('GET', `/briefings/${bid}/export`, null, true),

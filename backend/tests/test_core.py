@@ -89,3 +89,36 @@ def test_api_flow_actions_and_notes():
         assert n["items"][0]["type"] == "ask" and n["items"][0]["due_date"] == "2026-10-15"
         assert c.get(f"/api/briefings/{b2['briefing_id']}", headers={"X-User-Id": "leo.park"}).status_code == 403
         assert c.post("/api/clients/C004/briefings", headers={"X-User-Id": "leo.park"}).status_code == 403
+
+
+def test_every_pack_answers_all_seven_questions():
+    """A pack sets emphasis, never coverage.
+
+    The seven questions are the contract with the user. If a pack could quietly drop
+    one, the briefing would stop answering part of the brief and the coverage gate
+    would still pass, because it only scores the sections that were produced.
+    """
+    from app.briefing import packs
+    from app.briefing.sections import SECTIONS
+
+    all_keys = {s.key for s in SECTIONS}
+    for pack in packs.all_packs():
+        assert set(pack.order) == all_keys, f"pack '{pack.id}' does not cover all sections"
+        assert set(pack.lead) <= all_keys, f"pack '{pack.id}' leads with an unknown section"
+
+    with pytest.raises(packs.PackError):
+        packs._coerce_keys("broken", "order", ["snapshot", "changes"], complete=True)
+    with pytest.raises(packs.PackError):
+        packs._coerce_keys("broken", "order", ["snapshot", "not_a_section"], complete=False)
+
+
+def test_pack_selection_falls_back_and_sets_thresholds():
+    from app.briefing import packs
+
+    assert packs.select("Hedge Fund", "Quarterly review").id == "hedge_fund_review"
+    # Meeting purpose is more specific than segment, so it wins for a pension fee review.
+    assert packs.select("Public Pension", "Fee and custody review").id == "fee_and_custody"
+    # Anything unrecognised still gets a briefing, on the default pack.
+    fallback = packs.select("Sovereign Wealth", "Annual catch-up")
+    assert fallback.id == packs.default_pack().id
+    assert fallback.materiality.performance_bps == 25

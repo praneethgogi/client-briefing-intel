@@ -24,6 +24,7 @@ from .. import config, llm
 from ..security.entitlements import Principal
 from ..tools import structured as T
 from . import analysis as A
+from .packs import for_profile as pack_for_profile
 from .sections import SECTION_BY_KEY, SECTIONS, Ctx
 from .verify import verify_bullets
 
@@ -78,23 +79,28 @@ def prepare(state: BriefState) -> dict:
     ledger = A.build_ledger(p, cid, ex)
     conflicts = A.detect_conflicts(p, cid, profile, ex, ledger)
     aum = next((c["chosen"] for c in conflicts if c["field"] == "Total AUM"), profile.get("aum_usd"))
-    metrics = A.material_metrics(p, cid, aum, profile)
+    # The pack decides emphasis, order and where the materiality line sits for this
+    # kind of meeting. It is configuration, so a new desk is a YAML entry, not a release.
+    pack = pack_for_profile(profile)
+    metrics = A.material_metrics(p, cid, aum, profile, pack.materiality)
     since = profile["last_interaction"]["date"] if profile.get("last_interaction") else None
     timeline = A.change_timeline(p, cid, since, ex)
     # inventory every source the briefing may draw on; restricted ones are withheld (and counted) here
     sources = [dict(doc_id=d["doc_id"], title=d["title"], doc_type=d["doc_type"], date=d["date"],
                     source=d["source"], classification=d["classification"], client_scoped=d["client_id"] is not None)
                for d in T.get_documents(p, cid, include_firm_wide=True)]
-    ctx = Ctx(p, cid, profile, ex, ledger, conflicts, metrics, timeline, aum, since, sources)
+    ctx = Ctx(p, cid, profile, ex, ledger, conflicts, metrics, timeline, aum, since, sources, pack)
     return {"ctx": ctx, "events": [_event("prepare", t0, detail=f"{len(ex)} extractions, {len(ledger)} ledger items, "
-                                                                 f"{len(conflicts)} conflicts, {len(timeline)} changes")]}
+                                                                 f"{len(conflicts)} conflicts, {len(timeline)} changes; "
+                                                                 f"pack={pack.id}")]}
 
 
 def plan(state: BriefState) -> dict:
     """Routing: every assignment question gets a section; LLM phrasing only where allowed and available."""
     t0 = time.perf_counter()
-    keys = [s.key for s in SECTIONS]
-    return {"plan": keys, "events": [_event("plan", t0, detail=f"{len(keys)} sections; llm_mode={llm.mode()}")]}
+    keys = list(state["ctx"].pack.order)
+    return {"plan": keys, "events": [_event("plan", t0, detail=f"{len(keys)} sections in pack "
+                                                               f"'{state['ctx'].pack.id}'; llm_mode={llm.mode()}")]}
 
 
 def fan_out(state: BriefState):
@@ -186,7 +192,7 @@ def assemble(state: BriefState) -> dict:
     t0 = time.perf_counter()
     ctx, p = state["ctx"], state["principal"]
     by_key = {s["key"]: s for s in state["sections"]}
-    sections = [by_key[s.key] for s in SECTIONS]
+    sections = [by_key[k] for k in ctx.pack.order if k in by_key]
     unc = by_key["uncertainty"]
     # withheld + rejected + missing data are part of "what is uncertain or unavailable"
     withheld = [dict(kind=w["kind"], label=f"{w['ref']} data" if w["kind"] == "dataset" else "restricted document",
@@ -240,6 +246,7 @@ def assemble(state: BriefState) -> dict:
         withheld=dict(count=len(withheld), items=withheld),
         suggested_actions=suggested,
         generation=dict(mode=llm.mode(), model=config.OPENAI_MODEL if llm_used else None, llm_used=llm_used),
+        pack=ctx.pack.as_dict(),
     )
     return {"result": result, "events": [_event("assemble", t0, detail=f"{len(evidence)} evidence items")]}
 

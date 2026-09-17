@@ -190,7 +190,7 @@ function Sources({ b }) {
   )
 }
 
-function SidePanel({ b, selected, clientId, onToast, onRegenerate }) {
+function SidePanel({ b, selected, clientId, onToast, onRegenerate, onChanged }) {
   const ev = selected ? b.evidence[selected] : null
   const [created, setCreated] = useState({})
   const [notes, setNotes] = useState('')
@@ -207,11 +207,12 @@ function SidePanel({ b, selected, clientId, onToast, onRegenerate }) {
       await api.createAction({ client_id: clientId, title: a.title, due_date: a.due_date, origin: 'Briefing suggestion' })
       setCreated((c) => ({ ...c, [i]: true }))
       onToast(`Task created: ${a.title}`)
+      onChanged?.()  // the meeting may now be ready; refresh the week
     } catch (e) { onToast(`Failed: ${e.message}`) } finally { setBusy('') }
   }
   const capture = async () => {
     setBusy('notes')
-    try { setCaptured(await api.notes(clientId, notes)); setNotes('') } catch (e) { onToast(e.message) } finally { setBusy('') }
+    try { setCaptured(await api.notes(clientId, notes)); setNotes(''); onChanged?.() } catch (e) { onToast(e.message) } finally { setBusy('') }
   }
   const ask = async () => {
     setBusy('ask')
@@ -297,7 +298,7 @@ function SidePanel({ b, selected, clientId, onToast, onRegenerate }) {
   )
 }
 
-export default function Briefing({ client, user, onToast }) {
+export default function Briefing({ client, user, onToast, onChanged }) {
   const [b, setB] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -324,6 +325,21 @@ export default function Briefing({ client, user, onToast }) {
   }
 
   const sec = useMemo(() => Object.fromEntries((b?.sections || []).map((s) => [s.key, s])), [b])
+
+  // One renderer per section key. Which sections appear, and in what order, comes from
+  // the briefing pack - so a new meeting type is a config change, not a UI change.
+  const renderSection = (key) => {
+    const s = sec[key]
+    if (!s) return null
+    const extra = {
+      commitments: <Ledger s={s} onSelect={setSelected} selected={selected} />,
+      metrics: <Metrics s={s} onSelect={setSelected} selected={selected} />,
+      uncertainty: <Conflicts conflicts={b.conflicts} s={s} onSelect={setSelected} selected={selected} />,
+    }[key]
+    return (
+      <SectionCard key={key} s={s} selected={selected} onSelect={setSelected}>{extra}</SectionCard>
+    )
+  }
 
   if (!client) return <div className="empty"><h2>Pick a client</h2>Choose an upcoming meeting on the left.</div>
 
@@ -362,6 +378,8 @@ export default function Briefing({ client, user, onToast }) {
   )
 
   const m = b.run_metrics
+  const lead = b.pack?.lead || ['commitments', 'changes', 'uncertainty']
+  const restCount = (b.pack?.order || []).filter((k) => !lead.includes(k)).length
   return (
     <div>
       {header}
@@ -398,20 +416,14 @@ export default function Briefing({ client, user, onToast }) {
                 ))}
               </ol>
             </div>
-            <SectionCard s={sec.commitments} selected={selected} onSelect={setSelected}>
-              <Ledger s={sec.commitments} onSelect={setSelected} selected={selected} />
-            </SectionCard>
-            <div className="grid-2">
-              <SectionCard s={sec.changes} selected={selected} onSelect={setSelected} />
-              <SectionCard s={sec.uncertainty} selected={selected} onSelect={setSelected}>
-                <Conflicts conflicts={b.conflicts} s={sec.uncertainty} onSelect={setSelected} selected={selected} />
-              </SectionCard>
-            </div>
+            {lead.map(renderSection)}
             <div className="card more">
               <div>
                 <strong>That's what matters walking in.</strong>
-                <div className="q">The client snapshot, material metrics, opportunities and news are all answered
-                  in the full briefing.</div>
+                <div className="q">
+                  {restCount} further {restCount === 1 ? 'question is' : 'questions are'} answered in the full
+                  briefing. This order is set by the <strong>{b.pack.label}</strong> pack.
+                </div>
               </div>
               <button className="btn" onClick={() => setTab('briefing')}>Full briefing</button>
             </div>
@@ -429,30 +441,19 @@ export default function Briefing({ client, user, onToast }) {
                 ))}
               </ol>
             </div>
-            <div className="grid-2">
-              <SectionCard s={sec.snapshot} selected={selected} onSelect={setSelected} />
-              <SectionCard s={sec.changes} selected={selected} onSelect={setSelected} />
+            <div className="card more">
+              <div>
+                <strong>{b.pack.label}</strong>
+                <div className="q">{b.pack.focus}</div>
+              </div>
             </div>
-            <SectionCard s={sec.commitments} selected={selected} onSelect={setSelected}>
-              <Ledger s={sec.commitments} onSelect={setSelected} selected={selected} />
-            </SectionCard>
-            <div className="grid-2">
-              <SectionCard s={sec.metrics} selected={selected} onSelect={setSelected}>
-                <Metrics s={sec.metrics} onSelect={setSelected} selected={selected} />
-              </SectionCard>
-              <SectionCard s={sec.opportunities} selected={selected} onSelect={setSelected} />
-            </div>
-            <div className="grid-2">
-              <SectionCard s={sec.news} selected={selected} onSelect={setSelected} />
-              <SectionCard s={sec.uncertainty} selected={selected} onSelect={setSelected}>
-                <Conflicts conflicts={b.conflicts} s={sec.uncertainty} onSelect={setSelected} selected={selected} />
-              </SectionCard>
-            </div>
+            {b.pack.order.map(renderSection)}
           </>}
           {tab === 'trace' && <Trace b={b} />}
           {tab === 'sources' && <Sources b={b} />}
         </div>
-        <SidePanel b={b} selected={selected} clientId={client.client_id} onToast={onToast} onRegenerate={generate} />
+        <SidePanel b={b} selected={selected} clientId={client.client_id} onToast={onToast}
+          onRegenerate={generate} onChanged={onChanged} />
       </div>
     </div>
   )

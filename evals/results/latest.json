@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-09-16 22:27:18",
+  "run_at": "2026-09-17 09:38:11",
   "llm_mode": "openai",
   "model": "gpt-4o-mini",
   "passed": true,
@@ -98,12 +98,12 @@
   },
   "operational": {
     "briefings": 4,
-    "latency_p50_ms": 3829.2,
-    "latency_max_ms": 10315.2,
+    "latency_p50_ms": 4218.6,
+    "latency_max_ms": 8158.0,
     "llm_calls": 21,
-    "llm_tokens": 19234,
+    "llm_tokens": 19140,
     "verifier_rejections": 0,
-    "total_runtime_s": 40.6
+    "total_runtime_s": 38.9
   },
   "extraction": {
     "mode": "llm (gpt-4o-mini)",
@@ -129,7 +129,7 @@
       "calls": 17,
       "prompt_tokens": 17965,
       "completion_tokens": 1246,
-      "latency_ms": 17368.0,
+      "latency_ms": 17658.3,
       "errors": []
     }
   },
@@ -138,57 +138,57 @@
       "case": "nw-banker",
       "problems": [],
       "generation": {
-        "snapshot": "llm",
         "changes": "llm",
         "commitments": "deterministic",
         "metrics": "deterministic",
         "opportunities": "llm",
+        "snapshot": "llm",
         "news": "llm",
         "uncertainty": "deterministic"
       },
-      "latency_ms": 10315.2
+      "latency_ms": 8158.0
     },
     {
       "case": "nw-analyst",
       "problems": [],
       "generation": {
-        "snapshot": "llm",
         "changes": "llm",
         "commitments": "deterministic",
         "metrics": "deterministic",
         "opportunities": "llm",
+        "snapshot": "llm",
         "news": "llm",
         "uncertainty": "deterministic"
       },
-      "latency_ms": 4103.7
+      "latency_ms": 4470.3
     },
     {
       "case": "etrs-banker",
       "problems": [],
       "generation": {
-        "snapshot": "llm",
-        "changes": "llm",
         "commitments": "deterministic",
         "metrics": "deterministic",
-        "opportunities": "llm",
+        "changes": "llm",
+        "uncertainty": "deterministic",
+        "snapshot": "llm",
         "news": "llm",
-        "uncertainty": "deterministic"
+        "opportunities": "llm"
       },
-      "latency_ms": 3554.8
+      "latency_ms": 3967.0
     },
     {
       "case": "solstice-missing-data",
       "problems": [],
       "generation": {
+        "uncertainty": "deterministic",
         "snapshot": "llm",
-        "changes": "fallback_after_llm",
         "commitments": "deterministic",
-        "metrics": "deterministic",
+        "changes": "fallback_after_llm",
         "opportunities": "llm",
-        "news": "llm",
-        "uncertainty": "deterministic"
+        "metrics": "deterministic",
+        "news": "llm"
       },
-      "latency_ms": 3382.5
+      "latency_ms": 2926.1
     }
   ],
   "notes": {

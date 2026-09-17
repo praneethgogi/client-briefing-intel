@@ -228,8 +228,16 @@ def build_ledger(p: Principal, client_id: str, extractions: list[dict]) -> list[
 
 
 # ---------------------------------------------------------------- metrics
-def material_metrics(p: Principal, client_id: str, chosen_aum: float | None, profile: dict) -> list[dict]:
-    """Returns metric facts with a deterministic materiality flag and a ready-made sentence."""
+def material_metrics(p: Principal, client_id: str, chosen_aum: float | None, profile: dict,
+                     materiality=None) -> list[dict]:
+    """Metric facts with a deterministic materiality flag and a ready-made sentence.
+
+    The thresholds come from the briefing pack, so a pension board review and a hedge
+    fund financing review can draw the line in different places without a code change.
+    Falling back to the defaults keeps every existing caller working.
+    """
+    from .packs import Materiality
+    m = materiality or Materiality()
     facts = []
     rev = T.get_revenue(p, client_id)
     if rev:
@@ -248,7 +256,7 @@ def material_metrics(p: Principal, client_id: str, chosen_aum: float | None, pro
                 lines.append((pl, a - b, a, b))
             driver = max(lines, key=lambda x: abs(x[1]))
             facts.append(dict(
-                key="revenue_qoq", source="FinanceDW revenue", as_of=last, material=abs(ch or 0) >= 10,
+                key="revenue_qoq", source="FinanceDW revenue", as_of=last, material=abs(ch or 0) >= m.revenue_move_pct,
                 text=f"{last} revenue was {fmt_usd(by[last])}, {'+' if ch >= 0 else ''}{ch}% vs {prev} "
                      f"({fmt_usd(by[prev])}); largest move in {driver[0]} ({fmt_usd(driver[3])} to {fmt_usd(driver[2])})."))
     for h in T.get_holdings(p, client_id):
@@ -256,7 +264,7 @@ def material_metrics(p: Principal, client_id: str, chosen_aum: float | None, pro
         if ch is None:
             continue
         facts.append(dict(key=f"holding:{h['product']}", source="ProductDW holdings", as_of=h["as_of"],
-                          material=abs(ch) >= 10,
+                          material=abs(ch) >= m.holdings_move_pct,
                           text=f"{h['product']} {h['metric'].lower()} is {fmt_usd(h['value_usd'])}, "
                                f"{'+' if ch >= 0 else ''}{ch}% vs prior period ({fmt_usd(h['prior_value_usd'])})."))
     perf = T.get_performance(p, client_id)
@@ -264,7 +272,7 @@ def material_metrics(p: Principal, client_id: str, chosen_aum: float | None, pro
         r = perf[0]
         excess_bps = round((r["return_pct"] - r["benchmark_pct"]) * 100)
         facts.append(dict(key="performance", source="Performance system", as_of=r["as_of"],
-                          material=abs(excess_bps) >= 25,
+                          material=abs(excess_bps) >= m.performance_bps,
                           text=f"{r['portfolio']} returned {r['return_pct']}% in {r['period']} vs benchmark "
                                f"{r['benchmark_pct']}% ({'+' if excess_bps >= 0 else ''}{excess_bps} bps)."))
     if chosen_aum:
