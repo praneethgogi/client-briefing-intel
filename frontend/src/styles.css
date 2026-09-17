@@ -321,3 +321,20 @@ ul.reasons li:last-child { border-bottom: 0; }
   .split { grid-template-columns: 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
 }
+
+/* ---- progressive disclosure -------------------------------------------- */
+.section-toggle {
+  display: flex; align-items: flex-start; gap: 9px;
+  background: none; border: 0; padding: 0; text-align: left; color: inherit; flex: 1;
+}
+.section-toggle h3 { display: block; }
+.section-toggle .q { display: block; color: var(--ink-3); font-size: 11.5px; margin-top: 2px; }
+.section-toggle .chev {
+  flex: none; width: 17px; height: 17px; margin-top: 1px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: var(--radius);
+  font-size: 12px; line-height: 1; color: var(--ink-2); background: #fff;
+}
+.section-toggle:hover .chev { border-color: var(--brand); color: var(--brand); }
+.card.section.closed { background: var(--panel-2); }
+.card.section.closed .card-head { margin-bottom: 0; }

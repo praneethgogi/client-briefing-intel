@@ -27,19 +27,35 @@ function Bullets({ items, selected, onSelect }) {
   )
 }
 
-function SectionCard({ s, children, selected, onSelect }) {
+/**
+ * A briefing section. Collapsible, because seven open sections is a wall of text:
+ * closed it shows the question and how many points answer it, open it shows them.
+ * The Prepare view opens its sections; the full briefing opens only the first.
+ */
+function SectionCard({ s, children, selected, onSelect, defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen)
   const [label, tone] = GEN_LABEL[s.generation] || [s.generation, '']
+  const count = children ? null : (s.bullets?.length || 0)
   return (
-    <div className="card">
+    <div className={`card section ${open ? 'open' : 'closed'}`}>
       <div className="card-head">
-        <div>
-          <h3>{s.title}</h3>
-          <div className="q">{s.question}</div>
-        </div>
-        <span className={`pill ${tone}`} title={`attempts: ${s.attempts}`}>{label}</span>
+        <button className="section-toggle" onClick={() => setOpen((v) => !v)}
+          aria-expanded={open} title={open ? 'Collapse' : 'Expand'}>
+          <span className="chev" aria-hidden="true">{open ? '\u2212' : '+'}</span>
+          <span>
+            <h3>{s.title}</h3>
+            <span className="q">{s.question}</span>
+          </span>
+        </button>
+        <span className="row">
+          {!open && count !== null && (
+            <span className="small muted">{count} {count === 1 ? 'point' : 'points'}</span>
+          )}
+          <span className={`pill ${tone}`} title={`attempts: ${s.attempts}`}>{label}</span>
+        </span>
       </div>
-      {children || <Bullets items={s.bullets} selected={selected} onSelect={onSelect} />}
-      {s.rejected?.length > 0 && (
+      {open && (children || <Bullets items={s.bullets} selected={selected} onSelect={onSelect} />)}
+      {open && s.rejected?.length > 0 && (
         <details className="small" style={{ marginTop: 8 }}>
           <summary className="muted">{s.rejected.length} line(s) removed by the checker</summary>
           <ul>{s.rejected.map((r, i) => <li key={i}><code>{r.text}</code>: {r.problems.join('; ')}</li>)}</ul>
@@ -328,7 +344,7 @@ export default function Briefing({ client, user, onToast, onChanged }) {
 
   // One renderer per section key. Which sections appear, and in what order, comes from
   // the briefing pack - so a new meeting type is a config change, not a UI change.
-  const renderSection = (key) => {
+  const renderSection = (key, defaultOpen = true) => {
     const s = sec[key]
     if (!s) return null
     const extra = {
@@ -337,7 +353,8 @@ export default function Briefing({ client, user, onToast, onChanged }) {
       uncertainty: <Conflicts conflicts={b.conflicts} s={s} onSelect={setSelected} selected={selected} />,
     }[key]
     return (
-      <SectionCard key={key} s={s} selected={selected} onSelect={setSelected}>{extra}</SectionCard>
+      <SectionCard key={key} s={s} selected={selected} onSelect={setSelected}
+        defaultOpen={defaultOpen}>{extra}</SectionCard>
     )
   }
 
@@ -447,7 +464,7 @@ export default function Briefing({ client, user, onToast, onChanged }) {
                 <div className="q">{b.pack.focus}</div>
               </div>
             </div>
-            {b.pack.order.map(renderSection)}
+            {b.pack.order.map((k, i) => renderSection(k, i === 0))}
           </>}
           {tab === 'trace' && <Trace b={b} />}
           {tab === 'sources' && <Sources b={b} />}

@@ -101,11 +101,19 @@ def main() -> int:
         page.get_by_text("Asks & commitments", exact=False).first.scroll_into_view_if_needed()
         page.wait_for_timeout(BEAT)
 
-        # 8. The full briefing, ordered by this meeting's pack.
+        # 8. The full briefing: ordered by this meeting's pack, and collapsed so the
+        #    seven questions are a contents page rather than a wall of text.
         page.get_by_role("button", name="Full briefing").first.click()
         page.wait_for_timeout(BEAT)
-        page.mouse.wheel(0, 900)
+        page.mouse.wheel(0, 700)
         page.wait_for_timeout(BEAT)
+        # Open one on demand.
+        toggles = page.locator(".card.section.closed .section-toggle")
+        if toggles.count():
+            toggles.first.click()
+            page.wait_for_timeout(BEAT)
+        page.mouse.wheel(0, 500)
+        page.wait_for_timeout(PAUSE)
 
         # 9. Same client, different analyst: revenue withheld and declared.
         persona(page, "Leo Park")
